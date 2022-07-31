@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Windows.Forms;
+using System.IO;
 
 namespace Register_Driver
 {
@@ -32,26 +33,28 @@ namespace Register_Driver
                 return;
             }
             // Find K2EX path
-            try
+            // try
             {
-                var process = Process.GetProcessesByName("kinectv1process").First();
-                if (process == null)
+                var process = Process.GetProcessesByName("kinectv1process");
+                if (process == null || process.Length == 0)
                 {
-                    process = Process.GetProcessesByName("kinectv2process").First();
-                    if (process == null)
+                    process = Process.GetProcessesByName("kinectv2process");
+                    if (process == null || process.Length == 0)
                     {
-                        process = Process.GetProcessesByName("psmsprocess").First();
+                        process = Process.GetProcessesByName("psmsprocess");
                     }
                 }
-                string K2EXProcessPath = process.MainModule.FileName;
-                K2EXPath = System.IO.Path.GetDirectoryName(K2EXProcessPath);
+
+                var konctProc = process.First();
+                if (konctProc != null)
+                    K2EXPath = Path.GetDirectoryName(konctProc.MainModule.FileName);
                 Console.WriteLine($"Found K2EX at {K2EXPath}");
             }
-            catch (Exception e)
+            /* catch (Exception e)
             {
                 MessageBox.Show($"Could not find K2EX install path!\n\nRelaunch this while SteamVR and KinectToVR are both running.\n\n{e.Message}\n{e.StackTrace}", "K2EX Driver Registration", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
-            }
+            } */
             var SteamVR = Process.GetProcessesByName("vrmonitor").First();
             SteamVR.Kill();
             Process VRPathReg = new Process();
